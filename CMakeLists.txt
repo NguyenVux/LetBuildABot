@@ -9,7 +9,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_subdirectory(vendors/raylib)
 
-add_executable(LetBuildAbot
+add_executable(LetBuildAbot 
     src/main.cpp
 )
 
