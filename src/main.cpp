@@ -1,59 +1,102 @@
-#include <stdint.h>
-#define RAYMATH_IMPLEMENTATION
 #include "raylib.h"
-#include "raymath.h"
-#include <math.h>
-
+#include <cstdint>
+#include <functional>
+#include <vector>
 
 constexpr float s_tileSize = 64.0f;
+
+void DrawInfiniteGrid(const Camera2D& camera, int screenWidth, int screenHeight);
+class Player;
+void Move(Player& player);
+void Rotate(Player& player, int direction);
+
 enum class Facing : uint8_t
 {
-	RIGHT,
-	DOWN,
-	LEFT,
-	UP,
-	COUNT
+	Right,
+	Down,
+	Left,
+	Up,
+	Count,
 };
+
 class Player
 {
 public:
-	Texture2D texture = {};
+	uint32_t function_pointer = 0;
 	Vector2 position = {0.0f, 0.0f};
 	Vector2 size = {1.0f, 1.0f};
-	float moveSpeed = 280.0f;
-	Facing facing = Facing::RIGHT;
+	Facing facing = Facing::Right;
+	std::vector<std::function<void(Player&)>> instructionList;
+public:
+	Player(const std::string& texturePath)
+	{
+		texture = LoadTexture(texturePath.c_str());
+	}
+
+	~Player()
+	{
+		UnloadTexture(texture);
+	}
+
+	Player(const Player&) = delete;
+	Player& operator=(const Player&) = delete;
+
+	bool Update()
+	{
+		if (function_pointer >= instructionList.size())
+		{
+			return false;
+		}
+
+		instructionList.at(function_pointer)(*this);
+		function_pointer++;
+		return function_pointer < instructionList.size();
+	}
+	void Draw() const
+	{
+		const Vector2 pixelSize = Vector2Scale(size, s_tileSize);
+		const Rectangle source = {0.0f, 0.0f, static_cast<float>(texture.width), static_cast<float>(texture.height)};
+		const Rectangle destination = {
+			position.x,
+			position.y,
+			pixelSize.x,
+			pixelSize.y,
+		};
+		DrawTexturePro(texture, source, destination, Vector2Scale(pixelSize, 0.5f), (int)facing * 90.0f, WHITE);
+	}
+
+private:
+	Texture2D texture = {};
 };
 
-namespace
+void Move(Player& player)
 {
-void DrawInfiniteGrid(const Camera2D& camera, int screenWidth, int screenHeight)
-{
-	constexpr float axisThickness = 2.0f;
-
-	const Vector2 topLeft = GetScreenToWorld2D({0.0f, 0.0f}, camera);
-	const Vector2 bottomRight = GetScreenToWorld2D({static_cast<float>(screenWidth), static_cast<float>(screenHeight)}, camera);
-
-	const int startX = static_cast<int>(topLeft.x / s_tileSize) - 1;
-	const int endX = static_cast<int>(bottomRight.x / s_tileSize) + 1;
-	const int startY = static_cast<int>(topLeft.y / s_tileSize) - 1;
-	const int endY = static_cast<int>(bottomRight.y / s_tileSize) + 1;
-
-	for (int x = startX; x <= endX; ++x)
+	switch (player.facing)
 	{
-		const float worldX = static_cast<float>(x) * s_tileSize;
-		const Color color = (x == 0) ? GRAY : DARKGRAY;
-		const float thickness = (x == 0) ? axisThickness : 1.0f;
-		DrawLineEx({worldX, topLeft.y - s_tileSize}, {worldX, bottomRight.y + s_tileSize}, thickness, color);
-	}
-
-	for (int y = startY; y <= endY; ++y)
-	{
-		const float worldY = static_cast<float>(y) * s_tileSize;
-		const Color color = (y == 0) ? GRAY : DARKGRAY;
-		const float thickness = (y == 0) ? axisThickness : 1.0f;
-		DrawLineEx({topLeft.x - s_tileSize, worldY}, {bottomRight.x + s_tileSize, worldY}, thickness, color);
+	case Facing::Right:
+		player.position.x += s_tileSize;
+		break;
+	case Facing::Down:
+		player.position.y += s_tileSize;
+		break;
+	case Facing::Left:
+		player.position.x -= s_tileSize;
+		break;
+	case Facing::Up:
+		player.position.y -= s_tileSize;
+		break;
+	default:
+		break;
 	}
 }
+
+void Rotate(Player& player, int direction)
+{
+	const int facingCount = static_cast<int>(Facing::Count);
+	const int currentFacing = static_cast<int>(player.facing);
+	const int nextFacing = (currentFacing + direction + facingCount) % facingCount;
+
+	player.facing = static_cast<Facing>(nextFacing);
 }
 
 int main()
@@ -64,8 +107,14 @@ int main()
 	InitWindow(screenWidth, screenHeight, "LetBuildAbot");
 	SetTargetFPS(60);
 
-	Player player;
-	player.texture = LoadTexture("assets/arrow.png");
+	Player player("assets/arrow.png");
+	player.instructionList.push_back(std::bind(Move, std::placeholders::_1));
+	player.instructionList.push_back(std::bind(Move, std::placeholders::_1));
+	player.instructionList.push_back(std::bind(Move, std::placeholders::_1));
+	player.instructionList.push_back(std::bind(Rotate, std::placeholders::_1, -1));
+	player.instructionList.push_back(std::bind(Move, std::placeholders::_1));
+	player.instructionList.push_back(std::bind(Move, std::placeholders::_1));
+	player.instructionList.push_back(std::bind(Rotate, std::placeholders::_1, 1));
 
 	Camera2D camera = {};
 	camera.offset = {screenWidth * 0.5f, screenHeight * 0.5f};
@@ -73,54 +122,32 @@ int main()
 	camera.rotation = 0.0f;
 	camera.zoom = 1.0f;
 
+	constexpr float instructionDelay = 0.5f;
+	float instructionTimer = 0.0f;
+
 	while (!WindowShouldClose())
 	{
-		const float deltaTime = GetFrameTime();
-		const float time = GetTime();
-		Vector2 moveDirection = {0.0f, 0.0f};
-
-		if (IsKeyDown(KEY_W)) moveDirection.y -= 1.0f;
-		if (IsKeyDown(KEY_S)) moveDirection.y += 1.0f;
-		if (IsKeyDown(KEY_A)) moveDirection.x -= 1.0f;
-		if (IsKeyDown(KEY_D)) moveDirection.x += 1.0f;
-		if (IsKeyPressed(KEY_R))
-		{
-			player.facing = static_cast<Facing>(((uint8_t)player.facing + 1) % (uint8_t)Facing::COUNT);
-
-		}
-
-		if (moveDirection.x != 0.0f || moveDirection.y != 0.0f)
-		{
-			moveDirection = Vector2Normalize(moveDirection);
-			player.position.x += moveDirection.x * player.moveSpeed * deltaTime;
-			player.position.y += moveDirection.y * player.moveSpeed * deltaTime;
-		}
-
 		camera.target = player.position;
+		instructionTimer += GetFrameTime();
+		if (instructionTimer >= instructionDelay)
+		{
+			instructionTimer = 0.0f;
+			if(!player.Update())
+			{
+				TraceLog(LOG_INFO, "Done executing");
+			}
+		}
 		BeginDrawing();
 		ClearBackground(BLACK);
 
 		BeginMode2D(camera);
 		DrawInfiniteGrid(camera, screenWidth, screenHeight);
-		Vector2 pixelSize = Vector2Scale(player.size, s_tileSize);
-		const Rectangle source = {0.0f, 0.0f, static_cast<float>(player.texture.width), static_cast<float>(player.texture.height)};
-		const Rectangle destination = {
-			player.position.x,
-			player.position.y,
-			pixelSize.x,
-			pixelSize.y,
-		};
-		const Vector2 origin = {player.texture.width * 0.5f, player.texture.height * 0.5f};
-		DrawTexturePro(player.texture, source, destination, Vector2Scale(pixelSize, 0.5f), (float)player.facing * 90.0f, WHITE);
-
+		player.Draw();
 		EndMode2D();
-
-		DrawText("WASD", 16, 16, 24, RAYWHITE);
 
 		EndDrawing();
 	}
 
-	UnloadTexture(player.texture);
 	CloseWindow();
 
 	return 0;
