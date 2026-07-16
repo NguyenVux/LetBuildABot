@@ -1,5 +1,4 @@
 
-constexpr float s_tileSize = 64.0f;
 
 void DrawInfiniteGrid(const Camera2D& camera, int screenWidth, int screenHeight)
 {
