@@ -16,39 +16,16 @@ void Player::Draw() const
         pixelSize.x,
         pixelSize.y,
     };
-    DrawTexturePro(m_texture, source, destination, Vector2Scale(pixelSize, 0.5f), (int)facing * 90.0f, WHITE);
+    DrawTexturePro(m_texture, source, destination, Vector2Scale(pixelSize, 0.5f), angle, WHITE);
 }
 
 
 Vector2 Player::GetFacingVector() const 
 {
-    switch (facing) {
-        case Facing::Right:
-            return {
-                1.0f,
-                0.0f,
-            };
-            break;
-        case Facing::Down:
-            return {
-                0.0f,
-                -1.0f,
-            };
-            break;
-        case Facing::Left:
-            return {
-                -1.0f,
-                0.0f,
-            };
-            break;
-        case Facing::Up:
-            return {
-                0.0f,
-                1.0f,
-            };
-            break;
-        case Facing::Count:
-            break;
-    }
-    throw std::string("Uknow Facing");
+    
+    float rad = angle * (PI/180.0f);
+    return {
+        cosf(rad),
+        sinf(rad),
+    };
 }

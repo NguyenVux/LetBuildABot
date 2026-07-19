@@ -17,7 +17,7 @@ public:
 	uint32_t function_pointer = 0;
 	Vector2 position = {0.0f, 0.0f};
 	Vector2 size = {1.0f, 1.0f};
-	Facing facing = Facing::Right;
+	float angle = 0.0f;
 public:
   Player(const std::string &texturePath);
 
@@ -29,6 +29,7 @@ public:
   bool Update();
   void Draw() const;
   Vector2 GetFacingVector() const;
+  float GetFacingAngle() const;
 
 private:
 	Texture2D m_texture = {};
