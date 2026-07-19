@@ -39,3 +39,17 @@ public:
     virtual void Execute(State& state) override;
     virtual bool isDone(State& state) const override;
 };
+
+class RotateInstruction : public Instruction
+{
+public:
+    float m_startAngle;
+    float m_targetAngle;
+    float m_angle;
+public:
+    RotateInstruction(float angle) : m_angle(angle) {}
+    void SetNext(Instruction* next) {m_next = next;}
+    virtual void Setup(State& state) override;
+    virtual void Execute(State& state) override;
+    virtual bool isDone(State& state) const override;
+};
