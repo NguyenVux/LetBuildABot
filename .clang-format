@@ -1,0 +1,45 @@
+---
+Language: Cpp
+Standard: c++20
+# Indentation
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ColumnLimit: 100
+
+# Pointer and reference alignment with type
+PointerAlignment: Left
+ReferenceAlignment: Left
+
+# Brace style
+BreakBeforeBraces: Allman
+
+# Function and control flow
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortBlocksOnASingleLine: false
+
+# Spacing
+SpaceBeforeParens: ControlStatements
+SpaceAfterCStyleCast: false
+SpaceInEmptyParentheses: false
+SpaceBeforeSquareBrackets: false
+SpacesBeforeTrailingComments: 1
+
+# Alignment
+AlignAfterOpenBracket: Align
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+AlignOperands: true
+
+# Namespace
+NamespaceIndentation: All
+CompactNamespaces: false
+
+# Includes
+IncludeBlocks: Preserve
+SortIncludes: true
+
+# Template brackets stay on same line
+BinPackArguments: true

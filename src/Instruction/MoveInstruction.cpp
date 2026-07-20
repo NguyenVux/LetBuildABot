@@ -1,10 +1,8 @@
-#include "Instruction.h"
-#include "../Runner.h"
 #include "../Player.h"
+#include "../Runner.h"
+#include "Instruction.h"
 #include "raylib.h"
 #include "raymath.h"
-
-
 
 void MoveInstruction::Setup(State& state)
 {
@@ -28,7 +26,7 @@ void MoveInstruction::Execute(State& state)
 bool MoveInstruction::isDone(State& state) const
 {
     float dist = Vector2Distance(m_end, state.player.position);
-    return dist  <= EPSILON;
+    return dist <= EPSILON;
 }
 
 void DelayInstruction::Setup(State& state)

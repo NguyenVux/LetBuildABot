@@ -1,8 +1,8 @@
 #pragma once
 
-#include <stdint.h>
+#include <memory>
 #include <raylib.h>
 #include <raymath.h>
+#include <stdint.h>
 #include <string>
-#include <memory>
 constexpr float s_tileSize = 64.0f;
