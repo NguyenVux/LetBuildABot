@@ -7,4 +7,4 @@ for /r src %%f in (*.cpp *.h *.hpp) do (
 )
 
 echo Format complete.
-pause
+exit /b 0

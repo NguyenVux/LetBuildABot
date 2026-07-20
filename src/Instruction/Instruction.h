@@ -4,10 +4,10 @@ class Player;
 class State;
 class Instruction
 {
-  protected:
+    protected:
     Instruction* m_next;
 
-  public:
+    public:
     Instruction() : m_next(nullptr)
     {
     }
@@ -22,11 +22,11 @@ class Instruction
 
 class MoveInstruction : public Instruction
 {
-  public:
+    public:
     Vector2 m_start;
     Vector2 m_end;
 
-  public:
+    public:
     void SetNext(Instruction* next)
     {
         m_next = next;
@@ -38,11 +38,11 @@ class MoveInstruction : public Instruction
 
 class DelayInstruction : public Instruction
 {
-  public:
+    public:
     float m_duration;
     float m_elapsed;
 
-  public:
+    public:
     DelayInstruction(float duration) : m_duration(duration), m_elapsed(0.0f)
     {
     }
@@ -57,12 +57,12 @@ class DelayInstruction : public Instruction
 
 class RotateInstruction : public Instruction
 {
-  public:
+    public:
     float m_startAngle;
     float m_targetAngle;
     float m_angle;
 
-  public:
+    public:
     RotateInstruction(float angle) : m_angle(angle)
     {
     }

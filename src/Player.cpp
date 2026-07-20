@@ -21,7 +21,6 @@ void Player::Draw() const
 
 Vector2 Player::GetFacingVector() const
 {
-
     float rad = angle * (PI / 180.0f);
     return {
         cosf(rad),

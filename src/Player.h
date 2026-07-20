@@ -11,13 +11,13 @@ enum class Facing : uint8_t
 
 class Player
 {
-  public:
+    public:
     uint32_t function_pointer = 0;
     Vector2 position = {0.0f, 0.0f};
     Vector2 size = {1.0f, 1.0f};
     float angle = 0.0f;
 
-  public:
+    public:
     Player(const std::string& texturePath);
 
     ~Player()
@@ -33,6 +33,6 @@ class Player
     Vector2 GetFacingVector() const;
     float GetFacingAngle() const;
 
-  private:
+    private:
     Texture2D m_texture = {};
 };

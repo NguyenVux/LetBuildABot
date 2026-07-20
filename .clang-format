@@ -1,13 +1,14 @@
 ---
 Language: Cpp
 Standard: c++20
+
 # Indentation
 IndentWidth: 4
 TabWidth: 4
 UseTab: Never
 ColumnLimit: 100
 
-# Pointer and reference alignment with type
+# Pointer and reference alignment
 PointerAlignment: Left
 ReferenceAlignment: Left
 
@@ -18,7 +19,7 @@ BreakBeforeBraces: Allman
 AllowShortFunctionsOnASingleLine: None
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: false
-AllowShortBlocksOnASingleLine: false
+AllowShortBlocksOnASingleLine: Never
 
 # Spacing
 SpaceBeforeParens: ControlStatements
@@ -29,17 +30,29 @@ SpacesBeforeTrailingComments: 1
 
 # Alignment
 AlignAfterOpenBracket: Align
-AlignConsecutiveAssignments: false
-AlignConsecutiveDeclarations: false
-AlignOperands: true
+AlignConsecutiveAssignments: None
+AlignConsecutiveDeclarations: None
+AlignOperands: Align
 
 # Namespace
-NamespaceIndentation: All
+NamespaceIndentation: None
 CompactNamespaces: false
 
 # Includes
 IncludeBlocks: Preserve
 SortIncludes: true
 
-# Template brackets stay on same line
+# Function arguments
 BinPackArguments: true
+BinPackParameters: true
+
+# Access specifiers
+IndentAccessModifiers: false
+AccessModifierOffset: 0
+EmptyLineBeforeAccessModifier: LogicalBlock
+
+# Misc
+Cpp11BracedListStyle: true
+KeepEmptyLinesAtTheStartOfBlocks: false
+MaxEmptyLinesToKeep: 1
+ReflowComments: true

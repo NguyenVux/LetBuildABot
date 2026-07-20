@@ -1,13 +1,43 @@
 #include "Instruction/Instruction.h"
 #include "Player.h"
 #include "Runner.h"
-#include "pch.h"
 #include "raylib.h"
 #include "raymath.h"
-#include <cstddef>
 #include <format>
+#include <vector>
 
 void DrawInfiniteGrid(const Camera2D& camera, int screenWidth, int screenHeight);
+
+class Block
+{
+public:
+	Rectangle rect;
+	void Update() {
+		Vector2 mousePos = GetMousePosition();
+		bool hover = CheckCollisionPointRec(mousePos, rect);
+		Color color = GREEN;
+		if(hover)
+		{
+			color = RED;
+		}
+		DrawRectangleRec(rect,color);
+
+	}
+};
+
+struct Thickness {
+	float top;
+	float bottom;
+	float left;
+	float right;
+};
+class WidgetContainer {
+public:
+	Thickness paddings;
+	Thickness margins;
+	std::vector<Block> m_buttons;
+	
+};
 
 int main()
 {
@@ -49,6 +79,11 @@ int main()
     Instruction* i = &move;
     i->Setup(state);
     // i = nullptr;
+    Block block;
+    block.rect.width = 80;
+    block.rect.height = 30;
+    block.rect.x = screenWidth - block.rect.width;
+    block.rect.y = 0.0f;
     while (!WindowShouldClose())
     {
         camera.target = player.position;
@@ -68,6 +103,7 @@ int main()
             }
         }
 
+	block.Update();
         BeginMode2D(camera);
         DrawInfiniteGrid(camera, screenWidth, screenHeight);
         player.Draw();
