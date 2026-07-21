@@ -12,7 +12,7 @@ class Block
 {
 public:
 	Rectangle rect;
-	void Update() {
+	void Update() const {
 		Vector2 mousePos = GetMousePosition();
 		bool hover = CheckCollisionPointRec(mousePos, rect);
 		Color color = GREEN;
@@ -36,6 +36,34 @@ public:
 	Thickness paddings;
 	Thickness margins;
 	std::vector<Block> m_buttons;
+	Rectangle rect;
+
+	void load()
+	{
+		for(int i = 0; i < m_buttons.size(); i++)
+		{
+			Block& block = m_buttons[i];	
+			if(i == 0)
+			{
+				block.rect.x = rect.x + paddings.left;
+				block.rect.y = rect.y + paddings.top;
+			}
+			else
+			{
+				Block& prevBlock = m_buttons[i-1];
+				block.rect.x = rect.x;
+				block.rect.y = prevBlock.rect.y + prevBlock.rect.height; 
+			}
+		}
+	}
+
+	void Draw()
+	{
+		for(const Block& block : m_buttons)
+		{
+			block.Update();
+		}
+	}
 	
 };
 
@@ -79,11 +107,20 @@ int main()
     Instruction* i = &move;
     i->Setup(state);
     // i = nullptr;
-    Block block;
-    block.rect.width = 80;
-    block.rect.height = 30;
-    block.rect.x = screenWidth - block.rect.width;
-    block.rect.y = 0.0f;
+    WidgetContainer cont;
+    cont.rect.x = 0;
+    cont.rect.y = 0;
+    for(int i = 0; i < 10; i++)
+    {
+	    Block block;
+	    block.rect.width = 80;
+	    block.rect.height = 30;
+	    cont.m_buttons.push_back(block);
+
+    }
+    cont.rect.x = screenWidth - 80;
+    cont.load();
+
     while (!WindowShouldClose())
     {
         camera.target = player.position;
@@ -103,7 +140,7 @@ int main()
             }
         }
 
-	block.Update();
+	cont.Draw();
         BeginMode2D(camera);
         DrawInfiniteGrid(camera, screenWidth, screenHeight);
         player.Draw();
