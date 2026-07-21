@@ -8,73 +8,74 @@
 
 void DrawInfiniteGrid(const Camera2D& camera, int screenWidth, int screenHeight);
 
+
+class Widget {
+public:
+    std::vector<std::unique_ptr<Widget>> m_children;
+};
+
 class Block
 {
-public:
-	Rectangle rect;
-	void Update() const {
-		Vector2 mousePos = GetMousePosition();
-		bool hover = CheckCollisionPointRec(mousePos, rect);
-		Color color = GREEN;
-		if(hover)
-		{
-			color = RED;
-		}
-		DrawRectangleRec(rect,color);
-
-	}
+    public:
+    Rectangle rect;
+    void Update() const
+    {
+        Vector2 mousePos = GetMousePosition();
+        bool hover = CheckCollisionPointRec(mousePos, rect);
+        Color color = GREEN;
+        if (hover)
+        {
+            color = RED;
+        }
+        DrawRectangleRec(rect, color);
+    }
 };
 
-struct Thickness {
-	float top;
-	float bottom;
-	float left;
-	float right;
-};
-class WidgetContainer {
-public:
-	Thickness paddings;
-	Thickness margins;
-	std::vector<Block> m_buttons;
-	Rectangle rect;
-
-	void load()
-	{
-		for(int i = 0; i < m_buttons.size(); i++)
-		{
-			Block& block = m_buttons[i];	
-			if(i == 0)
-			{
-				block.rect.x = rect.x + paddings.left;
-				block.rect.y = rect.y + paddings.top;
-			}
-			else
-			{
-				Block& prevBlock = m_buttons[i-1];
-				block.rect.x = rect.x;
-				block.rect.y = prevBlock.rect.y + prevBlock.rect.height; 
-			}
-		}
-	}
-
-	void Draw()
-	{
-		for(const Block& block : m_buttons)
-		{
-			block.Update();
-		}
-	}
-	
-};
-
-int main()
+struct Thickness
 {
-    constexpr int screenWidth = 640;
-    constexpr int screenHeight = 640;
+    float top;
+    float bottom;
+    float left;
+    float right;
+};
+class WidgetContainer
+{
+    public:
+    Thickness paddings;
+    Thickness margins;
+    std::vector<Block> m_buttons;
+    Rectangle rect;
 
-    InitWindow(screenWidth, screenHeight, "LetBuildAbot");
-    SetTargetFPS(60);
+    void load()
+    {
+        for (int i = 0; i < m_buttons.size(); i++)
+        {
+            Block& block = m_buttons[i];
+            if (i == 0)
+            {
+                block.rect.x = rect.x;
+                block.rect.y = rect.y;
+            }
+            else
+            {
+                Block& prevBlock = m_buttons[i - 1];
+                block.rect.x = rect.x;
+                block.rect.y = prevBlock.rect.y + prevBlock.rect.height + 5.0f;
+            }
+        }
+    }
 
+    void Draw()
+    {
+        for (const Block& block : m_buttons)
+        {
+            block.Update();
+        }
+    }
+};
+
+void RunPlayerInstructionTest(int screenWidth, int screenHeight)
+{
     Player player("assets/arrow.png");
     State state = {
         player,
@@ -88,6 +89,7 @@ int main()
     DelayInstruction delay3(0.5f);
     DelayInstruction delay4(0.5f);
     RotateInstruction rot2(-90.0f);
+
     move.SetNext(&delay);
     delay.SetNext(&rot);
     rot.SetNext(&delay2);
@@ -104,67 +106,96 @@ int main()
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
 
-    Instruction* i = &move;
-    i->Setup(state);
-    // i = nullptr;
-    WidgetContainer cont;
-    cont.rect.x = 0;
-    cont.rect.y = 0;
-    for(int i = 0; i < 10; i++)
-    {
-	    Block block;
-	    block.rect.width = 80;
-	    block.rect.height = 30;
-	    cont.m_buttons.push_back(block);
-
-    }
-    cont.rect.x = screenWidth - 80;
-    cont.load();
+    Instruction* instruction = &move;
+    instruction->Setup(state);
 
     while (!WindowShouldClose())
     {
         camera.target = player.position;
+
         BeginDrawing();
         ClearBackground(BLACK);
-        if (i != nullptr)
+
+        if (instruction != nullptr)
         {
-            if (!i->isDone(state))
+            if (!instruction->isDone(state))
             {
-                i->Execute(state);
+                instruction->Execute(state);
             }
             else
             {
-                i = i->Next();
-                if (i != nullptr)
-                    i->Setup(state);
+                instruction = instruction->Next();
+                if (instruction != nullptr)
+                {
+                    instruction->Setup(state);
+                }
             }
         }
 
-	cont.Draw();
         BeginMode2D(camera);
         DrawInfiniteGrid(camera, screenWidth, screenHeight);
         player.Draw();
         EndMode2D();
 
-        if (i == nullptr)
+        if (instruction == nullptr)
         {
             DrawText("Done", 0, 0, 24, RAYWHITE);
         }
         else
         {
-            MoveInstruction* _i = reinterpret_cast<MoveInstruction*>(i);
-            DrawText(std::format("Current Position: {} \n"
-                                 "Target Position: {} \n"
-                                 "Distance: \n {}",
-                                 player.position.x, _i->m_end.x,
-                                 Vector2Distance(_i->m_end, player.position))
-                         .c_str(),
-                     0, 0, 24, RAYWHITE);
+            MoveInstruction* moveInstruction = dynamic_cast<MoveInstruction*>(instruction);
+            if (moveInstruction != nullptr)
+            {
+                DrawText(std::format("Current Position: {} \n"
+                                     "Target Position: {} \n"
+                                     "Distance: \n {}",
+                                     player.position.x, moveInstruction->m_end.x,
+                                     Vector2Distance(moveInstruction->m_end, player.position))
+                             .c_str(),
+                         0, 0, 24, RAYWHITE);
+            }
         }
+
+        EndDrawing();
+    }
+}
+
+void DrawTest()
+{
+    constexpr int screenWidth = 640;
+    constexpr int screenHeight = 640;
+
+    InitWindow(screenWidth, screenHeight, "LetBuildAbot");
+    SetTargetFPS(60);
+
+    // Camera2D cam;
+    WidgetContainer cont;
+    cont.rect.x = 0;
+    cont.rect.y = 0;
+    for (int i = 0; i < 10; i++)
+    {
+        Block block;
+        block.rect.width = 80;
+        block.rect.height = 30;
+        cont.m_buttons.push_back(block);
+    }
+    cont.rect.x = screenWidth - 80;
+    cont.load();
+    while (!WindowShouldClose())
+    {
+        BeginDrawing();
+        ClearBackground(BLACK);
+
+        cont.Draw();
         EndDrawing();
     }
 
     CloseWindow();
+}
 
-    return 0;
+
+int main()
+{
+    // raylib_example();
+    DrawTest();
 }
