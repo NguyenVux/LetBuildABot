@@ -3,7 +3,7 @@
     "configurations": [
         {
             "name": "Debug LetBuildAbot",
-            "type": "lldb-dap",
+            "type": "cppvsdbg",
             "request": "launch",
             "program": "${command:cmake.launchTargetPath}",
             "cwd": "${workspaceFolder}",
