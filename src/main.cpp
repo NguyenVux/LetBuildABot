@@ -76,13 +76,6 @@ class VContainerWidget : public Widget
         DrawRectangleRec(rect, color);
     }
 
-    virtual void OnMouseEnter() override {
-        TraceLog(LOG_INFO, std::format("Mouse Enter VContainer").c_str());
-    }
-    virtual void OnMouseLeave() override
-    {
-        TraceLog(LOG_INFO, std::format("Mouse Leave VContainer").c_str());
-    }
 };
 class UIManager
 {
@@ -94,12 +87,12 @@ public:
     {
         Vector2 mousePos = GetMousePosition();
         bool isLMousePressed = IsMouseButtonDown(MOUSE_LEFT_BUTTON);
-        std::queue<Widget*> widgetsToDraw;
-        widgetsToDraw.push(root.get());
-        while (!widgetsToDraw.empty())
+        std::queue<Widget*> widgets;
+        widgets.push(root.get());
+        while (!widgets.empty())
         {
-            Widget* top = widgetsToDraw.front();
-            widgetsToDraw.pop();
+            Widget* top = widgets.front();
+            widgets.pop();
             if (!top)
             {
                 continue;
@@ -120,13 +113,19 @@ public:
                     top->OnMouseLeave();
                 }
             }
-            
-             
+            if(isLMousePressed && isHover)
+            {
+                currentInteraction = top;
+            }
 
             for (Widget* child : top->m_children)
             {
-                widgetsToDraw.push(child);            
+                widgets.push(child);            
             }
+        }
+        if(currentInteraction != nullptr && isLMousePressed)
+        {
+            currentInteraction->OnMouseDown();
         }
     }
     void Draw()
@@ -169,6 +168,10 @@ class Block : public Widget
 
     virtual void OnMouseLeave() override {
        TraceLog(LOG_INFO, "Mouse leave %s", name.c_str());
+    }
+
+    virtual void OnMouseDown() override {
+       TraceLog(LOG_INFO, "Mouse down %s", name.c_str());
     }
 };
 
