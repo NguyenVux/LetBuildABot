@@ -21,6 +21,10 @@ public:
     bool Hover = false;
     Rectangle rect;
     virtual void UpdateLayout() {};
+    virtual void OnMouseEnter() {};
+    virtual void OnMouseLeave() {};
+    virtual void OnMouseDown() {};
+    virtual void OnMouseUp() {};
     virtual void Draw() const = 0;
     virtual ~Widget()
     {
@@ -71,19 +75,30 @@ class VContainerWidget : public Widget
         Color color = {89, 89, 89, 255};
         DrawRectangleRec(rect, color);
     }
+
+    virtual void OnMouseEnter() override {
+        TraceLog(LOG_INFO, std::format("Mouse Enter VContainer").c_str());
+    }
+    virtual void OnMouseLeave() override
+    {
+        TraceLog(LOG_INFO, std::format("Mouse Leave VContainer").c_str());
+    }
 };
 class UIManager
 {
 public:
     std::unique_ptr<Widget> root = nullptr;
+    Widget* currentInteraction = nullptr;
 
     void Update()
     {
+        Vector2 mousePos = GetMousePosition();
+        bool isLMousePressed = IsMouseButtonDown(MOUSE_LEFT_BUTTON);
         std::queue<Widget*> widgetsToDraw;
         widgetsToDraw.push(root.get());
         while (!widgetsToDraw.empty())
         {
-            const Widget* top = widgetsToDraw.front();
+            Widget* top = widgetsToDraw.front();
             widgetsToDraw.pop();
             if (!top)
             {
@@ -93,7 +108,21 @@ public:
             {
                 continue;
             }
-            top->Draw();
+            bool isHover = CheckCollisionPointRec(mousePos,top->rect);
+            if(isHover != top->Hover)
+            {
+                top->Hover = isHover;
+                if(top->Hover)
+                {
+                    top->OnMouseEnter();
+                }
+                else {
+                    top->OnMouseLeave();
+                }
+            }
+            
+             
+
             for (Widget* child : top->m_children)
             {
                 widgetsToDraw.push(child);            
@@ -130,11 +159,16 @@ class Block : public Widget
     public:
     virtual void Draw() const override
     {
-        Vector2 mousePos = GetMousePosition();
-        // bool hover = CheckCollisionPointRec(mousePos, rect);
         Color color = Hover?RED:GREEN;
         // }
         DrawRectangleRec(rect, color);
+    }
+    virtual void OnMouseEnter() override {
+       TraceLog(LOG_INFO, "Mouse enter %s", name.c_str());
+    }
+
+    virtual void OnMouseLeave() override {
+       TraceLog(LOG_INFO, "Mouse leave %s", name.c_str());
     }
 };
 
@@ -150,7 +184,7 @@ void DrawTest()
     manager.root = std::make_unique<VContainerWidget>();
     manager.root->rect.y = 20;
     manager.root->name = "root_VContainerWidget";
-    std::vector<Block> blocks(15);
+    std::vector<Block> blocks(5);
     for (Block& block : blocks)
     {
         block.rect.width = 80;
@@ -158,10 +192,16 @@ void DrawTest()
         manager.root->m_children.push_back(&block);
     }
     
+    for(int i = 0; i < blocks.size(); i++)
+    {
+        blocks[i].name = std::format("Block name {}",i);
+    }
+    
     manager.root->UpdateLayout();
     manager.root->rect.width = 100;
     while (!WindowShouldClose())
     {
+        manager.Update();
         BeginDrawing();
         ClearBackground(BLACK);
 

@@ -1,7 +1,7 @@
 {
     "cmake.useCMakePresets": "always",
     "clangd.arguments": [
-        "--compile-commands-dir=${workspaceFolder}/build/debug",
+        "--compile-commands-dir=${command:cmake.buildDirectory}",
         "--background-index",
         "--clang-tidy"
     ],
