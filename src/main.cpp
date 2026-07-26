@@ -7,7 +7,7 @@
 #include <cstddef>
 #include <format>
 #include <memory>
-#include <queue>
+#include <stack>
 #include <vector>
 
 void DrawInfiniteGrid(const Camera2D& camera, int screenWidth, int screenHeight);
@@ -82,16 +82,19 @@ class UIManager
 public:
     std::unique_ptr<Widget> root = nullptr;
     Widget* currentInteraction = nullptr;
+    
+    bool prevMouseState = 0x0;
 
     void Update()
     {
         Vector2 mousePos = GetMousePosition();
         bool isLMousePressed = IsMouseButtonDown(MOUSE_LEFT_BUTTON);
-        std::queue<Widget*> widgets;
+        std::stack<Widget*> widgets;
         widgets.push(root.get());
+        bool hasHover = false;
         while (!widgets.empty())
         {
-            Widget* top = widgets.front();
+            Widget* top = widgets.top();
             widgets.pop();
             if (!top)
             {
@@ -102,6 +105,10 @@ public:
                 continue;
             }
             bool isHover = CheckCollisionPointRec(mousePos,top->rect);
+            if(!hasHover && isHover)
+            {
+                hasHover = true;
+            }
             if(isHover != top->Hover)
             {
                 top->Hover = isHover;
@@ -130,11 +137,11 @@ public:
     }
     void Draw()
     {
-        std::queue<Widget*> widgetsToDraw;
+        std::stack<Widget*> widgetsToDraw;
         widgetsToDraw.push(root.get());
         while (!widgetsToDraw.empty())
         {
-            const Widget* top = widgetsToDraw.front();
+            const Widget* top = widgetsToDraw.top();
             widgetsToDraw.pop();
             if (!top)
             {
