@@ -14,17 +14,21 @@ void DrawInfiniteGrid(const Camera2D& camera, int screenWidth, int screenHeight)
 
 class Widget
 {
-public:
+    public:
     std::string name;
     std::vector<Widget*> m_children;
     bool Visible = true;
     bool Hover = false;
     Rectangle rect;
-    virtual void UpdateLayout() {};
-    virtual void OnMouseEnter() {};
-    virtual void OnMouseLeave() {};
-    virtual void OnMouseDown() {};
-    virtual void OnMouseUp() {};
+    
+    //===================Event Functions=========================
+    virtual bool OnMouseEnter() { return false; }
+    virtual bool OnMouseLeave() { return false; }
+    virtual bool OnMouseDown() { return false; }
+    virtual bool OnMouseUp() { return false; }
+    //===========================================================
+     
+    virtual void UpdateLayout() { }
     virtual void Draw() const = 0;
     virtual ~Widget()
     {
@@ -75,23 +79,21 @@ class VContainerWidget : public Widget
         Color color = {89, 89, 89, 255};
         DrawRectangleRec(rect, color);
     }
-
 };
 class UIManager
 {
-public:
+    public:
     std::unique_ptr<Widget> root = nullptr;
     Widget* currentInteraction = nullptr;
-    
+
     bool prevMouseState = 0x0;
 
-    void Update()
+    Widget* Raycast()
     {
         Vector2 mousePos = GetMousePosition();
-        bool isLMousePressed = IsMouseButtonDown(MOUSE_LEFT_BUTTON);
+        Widget* hitted = nullptr;
         std::stack<Widget*> widgets;
         widgets.push(root.get());
-        bool hasHover = false;
         while (!widgets.empty())
         {
             Widget* top = widgets.top();
@@ -104,37 +106,26 @@ public:
             {
                 continue;
             }
-            bool isHover = CheckCollisionPointRec(mousePos,top->rect);
-            if(!hasHover && isHover)
+            bool isHit = CheckCollisionPointRec(mousePos, top->rect);
+            if(isHit)
             {
-                hasHover = true;
-            }
-            if(isHover != top->Hover)
-            {
-                top->Hover = isHover;
-                if(top->Hover)
-                {
-                    top->OnMouseEnter();
-                }
-                else {
-                    top->OnMouseLeave();
-                }
-            }
-            if(isLMousePressed && isHover)
-            {
-                currentInteraction = top;
+                hitted = top;
             }
 
             for (Widget* child : top->m_children)
             {
-                widgets.push(child);            
+                widgets.push(child);
             }
         }
-        if(currentInteraction != nullptr && isLMousePressed)
-        {
-            currentInteraction->OnMouseDown();
-        }
+
+        return hitted;
     }
+
+    void Update()
+    {
+    }
+
+    
     void Draw()
     {
         std::stack<Widget*> widgetsToDraw;
@@ -165,20 +156,26 @@ class Block : public Widget
     public:
     virtual void Draw() const override
     {
-        Color color = Hover?RED:GREEN;
+        Color color = Hover ? RED : GREEN;
         // }
         DrawRectangleRec(rect, color);
     }
-    virtual void OnMouseEnter() override {
-       TraceLog(LOG_INFO, "Mouse enter %s", name.c_str());
+    virtual bool OnMouseEnter() override
+    {
+        TraceLog(LOG_INFO, "Mouse enter %s", name.c_str());
+        return false;
     }
 
-    virtual void OnMouseLeave() override {
-       TraceLog(LOG_INFO, "Mouse leave %s", name.c_str());
+    virtual bool OnMouseLeave() override
+    {
+        TraceLog(LOG_INFO, "Mouse leave %s", name.c_str());
+        return false;
     }
 
-    virtual void OnMouseDown() override {
-       TraceLog(LOG_INFO, "Mouse down %s", name.c_str());
+    virtual bool OnMouseDown() override
+    {
+        TraceLog(LOG_INFO, "Mouse down %s", name.c_str());
+        return false;
     }
 };
 
@@ -201,12 +198,12 @@ void DrawTest()
         block.rect.height = 30;
         manager.root->m_children.push_back(&block);
     }
-    
-    for(int i = 0; i < blocks.size(); i++)
+
+    for (int i = 0; i < blocks.size(); i++)
     {
-        blocks[i].name = std::format("Block name {}",i);
+        blocks[i].name = std::format("Block name {}", i);
     }
-    
+
     manager.root->UpdateLayout();
     manager.root->rect.width = 100;
     while (!WindowShouldClose())
