@@ -6,9 +6,11 @@
 #include <cassert>
 #include <cstddef>
 #include <format>
+#include <iterator>
 #include <memory>
 #include <stack>
 #include <vector>
+#include <deque>
 
 void DrawInfiniteGrid(const Camera2D& camera, int screenWidth, int screenHeight);
 
@@ -20,11 +22,14 @@ class Widget
     bool Visible = true;
     bool Hover = false;
     Rectangle rect;
-    
+    Widget* parent = nullptr; 
     //===================Event Functions=========================
     virtual bool OnMouseEnter() { return false; }
     virtual bool OnMouseLeave() { return false; }
-    virtual bool OnMouseDown() { return false; }
+    virtual bool OnMouseDown() { 
+        TraceLog(LOG_INFO, "Mouse Down %s", name.c_str());
+        return false;
+    }
     virtual bool OnMouseUp() { return false; }
     //===========================================================
      
@@ -123,6 +128,45 @@ class UIManager
 
     void Update()
     {
+        Widget* hitted = Raycast();
+        std::stack<Widget*> fromRoot;
+        std::deque<Widget*> widgetTree;
+        if(!hitted) return;
+
+        while(hitted != nullptr)
+        {
+            widgetTree.push_front(hitted);
+            hitted = hitted->parent;
+        }
+        bool isMouseDown = IsMouseButtonDown(MOUSE_LEFT_BUTTON);
+        if(isMouseDown)
+        {
+            for(auto i = widgetTree.rbegin(); i != widgetTree.rend(); i++)
+            {
+                Widget* current = *i;            
+                bool isConsumed = current->OnMouseDown();
+                if(isConsumed)
+                {
+                    break;
+                }
+            }
+        }
+        std::string path;
+        for(auto i = widgetTree.begin(); i != widgetTree.end(); i++)
+        {
+            Widget* current = *i;            
+            if(!current->Hover)
+            {
+                
+            }
+            path += current->name;
+            if(std::next(i) != widgetTree.end())
+            {
+               path += "/" ;
+            }
+            
+        }
+        TraceLog(LOG_INFO, path.c_str());
     }
 
     
@@ -196,6 +240,7 @@ void DrawTest()
     {
         block.rect.width = 80;
         block.rect.height = 30;
+        block.parent = manager.root.get();
         manager.root->m_children.push_back(&block);
     }
 
