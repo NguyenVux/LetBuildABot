@@ -35,8 +35,12 @@ void DrawInfiniteGrid(const Camera2D& camera, int screenWidth, int screenHeight)
     }
 }
 
-void RunPlayerInstructionTest(int screenWidth, int screenHeight)
+void RunPlayerInstructionTest()
 {
+    constexpr int screenWidth = 640;
+    constexpr int screenHeight = 640;
+
+    InitWindow(screenWidth, screenHeight, "LetBuildAbot");
     Player player("assets/arrow.png");
     State state = {
         player,

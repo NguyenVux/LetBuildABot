@@ -16,7 +16,7 @@
 #include <algorithm>
 
 void DrawInfiniteGrid(const Camera2D& camera, int screenWidth, int screenHeight);
-
+void RunPlayerInstructionTest();
 class Widget
 {
     public:
@@ -128,7 +128,7 @@ class UIManager
 {
     public:
     std::unique_ptr<Widget> root = nullptr;
-    Widget* currentInteraction = nullptr;
+    Widget* capturedWidget = nullptr;
     Widget* lastHittedWidget = nullptr;
 
     bool prevMouseState = 0x0;
@@ -217,12 +217,7 @@ class UIManager
     {
         Widget* hitted = Raycast();
         
-
-        std::stack<Widget*> fromRoot;
-
-        std::deque<Widget*> widgetTree = getTreePath(hitted);
-        std::deque<Widget*> capturedTree = getTreePath(lastHittedWidget);
-        
+        bool isMouseDown = IsMouseButtonDown(MOUSE_LEFT_BUTTON);
 
         //Get common ancestor
 
@@ -243,7 +238,57 @@ class UIManager
             currentMouseEnter->OnMouseEnter();
             currentMouseEnter = currentMouseEnter->parent;
         }
+        
 
+        if(isMouseDown)
+        {
+           if(!capturedWidget) 
+           {
+                capturedWidget = hitted;
+                Widget* current = capturedWidget;
+                while(current)
+                {
+                    if(current->OnMouseDown())
+                    {
+                        break;
+                    }
+                    current = current->parent;
+                }
+           }
+        }
+        else 
+        {
+            if(capturedWidget)
+            {
+                Widget* current = capturedWidget;
+                while(current)
+                {
+                    if(current->OnMouseUp())
+                    {
+                        break;
+                    }
+                    current = current->parent;
+                }
+                capturedWidget = nullptr;
+            }
+
+        }
+        
+        if(!capturedWidget)
+        {
+            if(isMouseDown)
+            {
+                capturedWidget = hitted;
+            }
+        }
+        else
+        {
+
+           if(!isMouseDown) 
+           {
+               Widget* current = capturedWidget;
+           }
+        }
         lastHittedWidget = hitted;
     }
 
@@ -305,7 +350,13 @@ class Block : public Widget
     virtual bool OnMouseDown() override
     {
         TraceLog(LOG_INFO, "Mouse down %s", name.c_str());
-        return false;
+        return true;
+    }
+
+    virtual bool OnMouseUp() override
+    {
+        TraceLog(LOG_INFO, "Mouse Up %s", name.c_str());
+        return true;
     }
 };
 
@@ -390,7 +441,7 @@ void DrawTest()
 }
 
 int main()
-{
-    // raylib_example();
+{    
+    // RunPlayerInstructionTest();
     DrawTest();
 }
