@@ -1,12 +1,16 @@
 #pragma once
+#include <rfl.hpp>
 #include <raylib.h>
-#include <string>
 #include <vector>
+#include <UI/Properties.h>
+
+namespace UI{
 
 class Widget
 {
+protected:
+    Properties::Core coreProperties;
 public:
-    std::string name;
     std::vector<Widget*> m_children;
     bool Visible = true;
     bool Hover = false;
@@ -17,13 +21,10 @@ public:
     Widget(Widget* parent): 
         parent(parent)
     {
-        depth = 0;
-        if(parent)
-        {
-           depth = parent->depth + 1; 
-        }
+        depth = parent?parent->depth+1:0;
     }
     //===========================================================
+    std::string_view GetName() const { return coreProperties.Name;}
     bool isAncestorOf(const Widget* widget) const;
     bool isDescendanceOf(const Widget* widget) const;
     //===================Event Functions=========================
@@ -32,8 +33,13 @@ public:
     virtual bool OnMouseDown()  { return false; }
     virtual bool OnMouseUp()    { return false; }
     //===========================================================
-     
+    void Load(Properties::Core properties)
+    {
+        coreProperties = properties;
+    }
+    //===========================================================
     virtual void UpdateLayout() { }
     virtual void Draw() const   { }
     virtual ~Widget()           { }
 };
+}

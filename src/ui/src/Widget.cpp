@@ -1,6 +1,7 @@
 #include <UI/Widget.h>
 
-
+namespace UI
+{
 
 bool Widget::isAncestorOf(const Widget* widget) const {
     return widget->isDescendanceOf(this);
@@ -19,4 +20,5 @@ bool Widget::isDescendanceOf(const Widget* widget) const
        currentParent = currentParent->parent;
     }
     return false;
+}
 }

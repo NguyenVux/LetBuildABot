@@ -9,7 +9,7 @@
 #include <UI/Widget.h>
 
 
-
+using namespace UI;
 class VContainerWidget : public Widget
 {
     public:
@@ -31,7 +31,7 @@ class VContainerWidget : public Widget
             Widget* child = m_children[i];
             if (child == nullptr)
             {
-                TraceLog(LOG_WARNING, "%s::UpdateLayout() child index %d null", name.c_str(), i);
+                TraceLog(LOG_WARNING, std::format("{}::UpdateLayout() child index {} null", GetName(), i).c_str());
                 continue;
             }
             realChildCount++;
@@ -163,14 +163,14 @@ class UIManager
 
         while(currentMouseLeave != commonNode)
         {
-            TraceLog(LOG_INFO, "Mouse Leave: %s",currentMouseLeave->name.c_str());
+            TraceLog(LOG_INFO, std::format("Mouse Leave: {}",currentMouseLeave->GetName()).c_str());
             currentMouseLeave->OnMouseLeave();
             currentMouseLeave = currentMouseLeave->parent;
         }
 
         while(currentMouseEnter != commonNode)
         {
-            TraceLog(LOG_INFO, "Mouse Enter: %s",currentMouseEnter->name.c_str());
+            TraceLog(LOG_INFO, std::format("Mouse Enter: {}",currentMouseEnter->GetName()).c_str());
             currentMouseEnter->OnMouseEnter();
             currentMouseEnter = currentMouseEnter->parent;
         }
@@ -285,13 +285,13 @@ class Block : public Widget
 
     virtual bool OnMouseDown() override
     {
-        TraceLog(LOG_INFO, "Mouse down %s", name.c_str());
+        TraceLog(LOG_INFO, std::format("Mouse down: {}",GetName()).c_str());
         return true;
     }
 
     virtual bool OnMouseUp() override
     {
-        TraceLog(LOG_INFO, "Mouse Up %s", name.c_str());
+        TraceLog(LOG_INFO, std::format("Mouse up: {}",GetName()).c_str());
         return true;
     }
 };
@@ -306,7 +306,8 @@ void DrawTest()
 
     UIManager manager;
     manager.root = std::make_unique<Widget>(nullptr);
-    manager.root->name = "root";
+    manager.root->Load(Properties::Core{.Name="root"});
+    // manager.root->name = "root";
     std::unique_ptr<VContainerWidget> c1= std::make_unique<VContainerWidget>(manager.root.get());
     c1->rect.x = 0;
     c1->rect.y = 20;
@@ -314,7 +315,7 @@ void DrawTest()
     c1->spacing = 20.0f;
     c1->rect.width = 80.0f + c1->border * 2.0f;
 
-    c1->name = "VContainerWidget";
+    c1->Load(Properties::Core{.Name="VContainerWidget"});
     c1->parent = manager.root.get();
     manager.root->m_children.push_back(c1.get());
     std::vector<std::unique_ptr<Block>> blocks;
@@ -330,7 +331,7 @@ void DrawTest()
 
     for (int i = 0; i < blocks.size(); i++)
     {
-        blocks[i]->name = std::format("Block name {}", i);
+        blocks[i]->Load(Properties::Core{ .Name=std::format("Block name {}", i)});
     }
 
     c1->UpdateLayout();
@@ -341,7 +342,7 @@ void DrawTest()
     c2->rect.width = 80.0f + c1->border * 2.0f;
     c2->rect.x = c1->rect.x + c1->rect.width - 50.0f;
     c2->rect.y = 30;
-    c2->name = "VContainerWidget2";
+    c2->Load(Properties::Core{.Name="VContainerWidget2"});
     c2->parent = manager.root.get();
     c2->color = BLUE;
     manager.root->m_children.push_back(c2.get());
@@ -359,7 +360,7 @@ void DrawTest()
 
     for (int i = 0; i < blocks2.size(); i++)
     {
-        blocks2[i]->name = std::format("Block name {}", i);
+        blocks2[i]->Load(Properties::Core{ .Name=std::format("Block name {}", i)});
     }
     c2->UpdateLayout();
 
