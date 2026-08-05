@@ -8,11 +8,11 @@
             "problemMatcher": []
         },
         {
-            "label": "CMake: build",
+            "label": "CMake: build for launch",
             "type": "cmake",
             "command": "build",
             "targets": [
-                "LetBuildAbot"
+                "${command:cmake.launchTargetName}"
             ],
             "dependsOn": "CMake: configure",
             "problemMatcher": [],

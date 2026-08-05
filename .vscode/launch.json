@@ -7,7 +7,7 @@
             "request": "launch",
             "program": "${command:cmake.launchTargetPath}",
             "cwd": "${workspaceFolder}",
-            "preLaunchTask": "CMake: build",
+            "preLaunchTask": "CMake: build for launch",
             "console": "internalConsole",
             "internalConsoleOptions": "openOnSessionStart"
         }
