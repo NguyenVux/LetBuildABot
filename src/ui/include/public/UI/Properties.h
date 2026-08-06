@@ -16,6 +16,10 @@ struct Core {
     std::string Name;
 };
 
+enum class LayoutFlow : int 
+{
+
+};
 struct LayoutProperties{
 	float spacing;
 	EdgeInsets Padding;

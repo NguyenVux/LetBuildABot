@@ -9,7 +9,7 @@ namespace UI{
 class Widget
 {
 protected:
-    Properties::Core coreProperties;
+    std::string Name;
 public:
     std::vector<Widget*> m_children;
     bool Visible = true;
@@ -17,14 +17,14 @@ public:
     Rectangle rect;
     int depth;
     Widget* parent = nullptr; 
-    
     Widget(Widget* parent): 
         parent(parent)
     {
         depth = parent?parent->depth+1:0;
     }
     //===========================================================
-    std::string_view GetName() const { return coreProperties.Name;}
+    std::string_view GetName() const    { return Name; }
+    void SetName(std::string name)      { Name = name; }
     bool isAncestorOf(const Widget* widget) const;
     bool isDescendanceOf(const Widget* widget) const;
     //===================Event Functions=========================
@@ -33,10 +33,6 @@ public:
     virtual bool OnMouseDown()  { return false; }
     virtual bool OnMouseUp()    { return false; }
     //===========================================================
-    void Load(Properties::Core properties)
-    {
-        coreProperties = properties;
-    }
     //===========================================================
     virtual void UpdateLayout() { }
     virtual void Draw() const   { }

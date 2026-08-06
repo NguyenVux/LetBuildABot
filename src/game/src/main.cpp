@@ -306,8 +306,7 @@ void DrawTest()
 
     UIManager manager;
     manager.root = std::make_unique<Widget>(nullptr);
-    manager.root->Load(Properties::Core{.Name="root"});
-    // manager.root->name = "root";
+    manager.root->SetName("root");
     std::unique_ptr<VContainerWidget> c1= std::make_unique<VContainerWidget>(manager.root.get());
     c1->rect.x = 0;
     c1->rect.y = 20;
@@ -315,7 +314,7 @@ void DrawTest()
     c1->spacing = 20.0f;
     c1->rect.width = 80.0f + c1->border * 2.0f;
 
-    c1->Load(Properties::Core{.Name="VContainerWidget"});
+    c1->SetName("VContainerWidget");
     c1->parent = manager.root.get();
     manager.root->m_children.push_back(c1.get());
     std::vector<std::unique_ptr<Block>> blocks;
@@ -331,7 +330,7 @@ void DrawTest()
 
     for (int i = 0; i < blocks.size(); i++)
     {
-        blocks[i]->Load(Properties::Core{ .Name=std::format("Block name {}", i)});
+        blocks[i]->SetName(std::format("Block name {}", i));
     }
 
     c1->UpdateLayout();
@@ -342,7 +341,7 @@ void DrawTest()
     c2->rect.width = 80.0f + c1->border * 2.0f;
     c2->rect.x = c1->rect.x + c1->rect.width - 50.0f;
     c2->rect.y = 30;
-    c2->Load(Properties::Core{.Name="VContainerWidget2"});
+    c2->SetName("VContainerWidget2");
     c2->parent = manager.root.get();
     c2->color = BLUE;
     manager.root->m_children.push_back(c2.get());
@@ -360,7 +359,7 @@ void DrawTest()
 
     for (int i = 0; i < blocks2.size(); i++)
     {
-        blocks2[i]->Load(Properties::Core{ .Name=std::format("Block name {}", i)});
+        blocks2[i]->SetName(std::format("Block name {}", i));
     }
     c2->UpdateLayout();
 
