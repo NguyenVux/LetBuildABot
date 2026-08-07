@@ -1,6 +1,7 @@
 add_library(UI STATIC
     src/dummy.cpp
     src/Widget.cpp
+    src/UIManager.cpp
 )
 
 add_library(${NAMESPACE}::UI ALIAS UI)
