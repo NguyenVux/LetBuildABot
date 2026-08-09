@@ -1,5 +1,6 @@
 #include <UI/UIManager.h>
 #include <UI/Widget.h>
+#include <UI/Helper.h>
 #include <memory>
 #include <stack>
 
@@ -104,14 +105,9 @@ void UIManager::Update()
         if (!capturedWidget)
         {
             capturedWidget = hitted;
-            Widget* current = capturedWidget;
-            while (current)
+            for(Widget* wid : Helper::WidgetAncestorRange::From(capturedWidget))
             {
-                if (current->OnMouseDown())
-                {
-                    break;
-                }
-                current = current->GetParent();
+                wid->OnMouseDown();
             }
         }
     }
@@ -119,33 +115,14 @@ void UIManager::Update()
     {
         if (capturedWidget)
         {
-            Widget* current = capturedWidget;
-            while (current)
+            for(Widget* wid : Helper::WidgetAncestorRange::From(capturedWidget))
             {
-                if (current->OnMouseUp())
-                {
-                    break;
-                }
-                current = current->GetParent();
+                wid->OnMouseUp();
             }
             capturedWidget = nullptr;
         }
     }
 
-    if (!capturedWidget)
-    {
-        if (isMouseDown)
-        {
-            capturedWidget = hitted;
-        }
-    }
-    else
-    {
-        if (!isMouseDown)
-        {
-            Widget* current = capturedWidget;
-        }
-    }
     lastHittedWidget = hitted;
 }
 

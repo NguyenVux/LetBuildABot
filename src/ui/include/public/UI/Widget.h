@@ -52,6 +52,10 @@ public:
 
 class Block : public Widget
 {
+private:
+    Texture2D Normal;
+    Texture2D Hover;
+    Texture2D Down;
 public:
     Color color = GREEN;
     bool isHover = false;
