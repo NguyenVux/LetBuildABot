@@ -2,11 +2,17 @@
 
 #include "raylib.h"
 namespace UI {
-namespace Events {
 class Widget;
+
+
+namespace Events {
+
+
+
+
 struct MouseEvent {
-    Widget* HittedWidget;
-    Widget* CapturedWidget;
+    Widget* HittedWidget = nullptr;
+    Widget* CapturedWidget = nullptr;
     Vector2 MouseDelta;
 };
 

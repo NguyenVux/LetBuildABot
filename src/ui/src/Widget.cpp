@@ -1,3 +1,4 @@
+#include "raylib.h"
 #include <UI/Widget.h>
 
 namespace UI
@@ -9,7 +10,7 @@ Widget::Widget(Widget* parent):
 }
 
 bool Widget::isAncestorOf(const Widget* widget) const {
-    return widget->isDescendanceOf(this);
+    return widget?widget->isDescendanceOf(this):false;
 }
 
 
@@ -75,35 +76,51 @@ Block::Block(Widget* parent) : Widget(parent)
 {
 }
 
-bool Block::OnMouseEnter()
+EventResult Block::OnMouseEnter(Events::MouseEvent event)
 {
+    EventResult result = {
+	    .Consumed = false,
+	    .Handled = true,
+    };
+    
     isHover = true;
-    // TraceLog(LOG_INFO, "Mouse enter %s", name.c_str());
-    return false;
+    return result;
 }
 
-bool Block::OnMouseLeave()
+EventResult Block::OnMouseLeave(Events::MouseEvent event)
 {
+    EventResult result = {
+	    .Consumed = false,
+	    .Handled = true,
+    };
     isHover = false;
-    // TraceLog(LOG_INFO, "Mouse leave %s", name.c_str());
-    return false;
+    return result;
 }
 
-bool Block::OnMouseDown()
+EventResult Block::OnMouseDown(Events::MouseEvent event)
 {
-    TraceLog(LOG_INFO, std::format("Mouse down: {}", GetName()).c_str());
-    return true;
+    EventResult result = {
+	    .Consumed = false,
+	    .Handled = true,
+    };
+    isMouseDown = true;
+    return result;
 }
 
-bool Block::OnMouseUp()
+EventResult Block::OnMouseUp(Events::MouseEvent event)
 {
-    TraceLog(LOG_INFO, std::format("Mouse up: {}", GetName()).c_str());
-    return true;
+    EventResult result = {
+	    .Consumed = false,
+	    .Handled = true,
+    };
+    isMouseDown = false;
+    return result;
 }
 
 void Block::Draw() const
 {
     Color _color = isHover ? RED : GREEN;
+    _color = isMouseDown?YELLOW:_color;
     DrawRectangleRec(rect, _color);
 }
 } // namespace UI

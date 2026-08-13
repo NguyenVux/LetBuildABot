@@ -77,26 +77,27 @@ const Widget* UIManager::GetCommonNode(const Widget* node1, const Widget* node2)
 void UIManager::Update()
 {
     Widget* hitted = Raycast();
+    Events::MouseEvent mouseEvent;
+    mouseEvent.CapturedWidget = capturedWidget;
 
     bool isMouseDown = IsMouseButtonDown(MOUSE_LEFT_BUTTON);
 
     // Get common ancestor
-
     auto commonNode = GetCommonNode(hitted, lastHittedWidget);
     Widget* currentMouseLeave = lastHittedWidget;
     Widget* currentMouseEnter = hitted;
 
     while (currentMouseLeave != commonNode)
     {
-        TraceLog(LOG_INFO, std::format("Mouse Leave: {}", currentMouseLeave->GetName()).c_str());
-        currentMouseLeave->OnMouseLeave();
+        // TraceLog(LOG_INFO, std::format("Mouse Leave: {}", currentMouseLeave->GetName()).c_str());
+        currentMouseLeave->OnMouseLeave(mouseEvent);
         currentMouseLeave = currentMouseLeave->GetParent();
     }
 
     while (currentMouseEnter != commonNode)
     {
-        TraceLog(LOG_INFO, std::format("Mouse Enter: {}", currentMouseEnter->GetName()).c_str());
-        currentMouseEnter->OnMouseEnter();
+        // TraceLog(LOG_INFO, std::format("Mouse Enter: {}", currentMouseEnter->GetName()).c_str());
+        currentMouseEnter->OnMouseEnter(mouseEvent);
         currentMouseEnter = currentMouseEnter->GetParent();
     }
 
@@ -107,7 +108,11 @@ void UIManager::Update()
             capturedWidget = hitted;
             for(Widget* wid : Helper::WidgetAncestorRange::From(capturedWidget))
             {
-                wid->OnMouseDown();
+                EventResult result = wid->OnMouseDown(mouseEvent);
+		if(result.Consumed)
+		{
+			break;
+		}
             }
         }
     }
@@ -117,7 +122,11 @@ void UIManager::Update()
         {
             for(Widget* wid : Helper::WidgetAncestorRange::From(capturedWidget))
             {
-                wid->OnMouseUp();
+                EventResult result = wid->OnMouseUp(mouseEvent);
+		if(result.Consumed)
+		{
+			break;
+		}
             }
             capturedWidget = nullptr;
         }

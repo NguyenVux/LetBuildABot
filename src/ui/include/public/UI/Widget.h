@@ -3,8 +3,14 @@
 #include <raylib.h>
 #include <vector>
 #include <UI/Properties.h>
+#include <UI/UIEvents.h>
 
 namespace UI{
+
+struct EventResult {
+	bool Consumed	= false;
+	bool Handled	= false;
+};
 
 class Widget
 {
@@ -27,10 +33,10 @@ public:
     bool isAncestorOf(const Widget* widget) const;
     bool isDescendanceOf(const Widget* widget) const;
     //===================Event Functions=========================
-    virtual bool OnMouseEnter() { return false; }
-    virtual bool OnMouseLeave() { return false; }
-    virtual bool OnMouseDown()  { return false; }
-    virtual bool OnMouseUp()    { return false; }
+    virtual EventResult OnMouseEnter(Events::MouseEvent event) { return {}; }
+    virtual EventResult OnMouseLeave(Events::MouseEvent event) { return {}; }
+    virtual EventResult OnMouseDown(Events::MouseEvent event)  { return {}; }
+    virtual EventResult OnMouseUp(Events::MouseEvent event)    { return {}; }
     //======================Life Cycle===========================
     virtual void UpdateLayout() { }
     virtual void Draw() const   { }
@@ -56,15 +62,16 @@ private:
     Texture2D Normal;
     Texture2D Hover;
     Texture2D Down;
+    bool isMouseDown = false;
+    bool isHover = false;
 public:
     Color color = GREEN;
-    bool isHover = false;
     Block(Widget* parent);
     //===================Event Functions=========================
-    virtual bool OnMouseEnter() override;
-    virtual bool OnMouseLeave() override;
-    virtual bool OnMouseDown() override;
-    virtual bool OnMouseUp() override;
+    virtual EventResult OnMouseEnter(Events::MouseEvent event) override;
+    virtual EventResult OnMouseLeave(Events::MouseEvent event) override;
+    virtual EventResult OnMouseDown(Events::MouseEvent event) override;
+    virtual EventResult OnMouseUp(Events::MouseEvent event) override;
     //===========================================================
     virtual void Draw() const override;
 };
