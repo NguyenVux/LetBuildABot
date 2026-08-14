@@ -82,6 +82,7 @@ void DrawTest()
 
     while (!WindowShouldClose())
     {
+	manager.UpdateLayout();
         manager.Update();
         BeginDrawing();
         ClearBackground(BLACK);

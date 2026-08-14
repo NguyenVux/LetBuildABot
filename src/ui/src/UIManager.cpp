@@ -74,6 +74,12 @@ const Widget* UIManager::GetCommonNode(const Widget* node1, const Widget* node2)
 
     return node1;
 }
+
+void UIManager::UpdateLayout()
+{
+
+}
+
 void UIManager::Update()
 {
     Widget* hitted = Raycast();

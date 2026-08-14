@@ -18,12 +18,6 @@ protected:
     std::string Name;
     Widget* parent = nullptr; 
 public:
-    std::vector<Widget*> m_children;
-    bool Visible = true;
-    bool Hover = false;
-    Rectangle rect;
-    int depth;
-
     Widget(Widget* parent);
     //===========================================================
     std::string_view GetName() const    { return Name; }
@@ -41,6 +35,13 @@ public:
     virtual void UpdateLayout() { }
     virtual void Draw() const   { }
     virtual ~Widget()           { }
+public:
+    std::vector<Widget*> m_children;
+    bool Visible = true;
+    bool Hover = false;
+    Rectangle rect;
+    int depth;
+
 };
 
 class VContainerWidget : public Widget

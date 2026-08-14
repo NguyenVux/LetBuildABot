@@ -20,6 +20,7 @@ private:
 public:
     UIManager();
     Widget* GetRootWidget() { return root.get(); }
+    void UpdateLayout();
     void Update();
     void Draw();
 };
